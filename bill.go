@@ -22,6 +22,35 @@ type Invoice struct {
 	Performances []Performance `json:"performances"`
 }
 
+func playFor(play _Play)string{
+	return play.Type
+}
+
+func playName(play _Play)string{
+	return play.Name
+}
+
+func getAmount(perf Performance,play _Play)float64{
+	thisAmount := 0.0
+
+	switch playFor(play) {
+	case "tragedy":
+		thisAmount = 40000
+		if perf.Audience > 30 {
+			thisAmount += 1000 * (float64(perf.Audience - 30))
+		}
+	case "comedy":
+		thisAmount = 30000
+		if perf.Audience > 20 {
+			thisAmount += 10000 + 500*(float64(perf.Audience-20))
+		}
+		thisAmount += 300 * float64(perf.Audience)
+	default:
+		panic(fmt.Sprintf("unknow type: %s", play.Type))
+	}
+	return thisAmount
+}
+
 func statement(invoice Invoice, plays Play) string {
 	totalAmount := 0.0
 	volumeCredits := 0.0
@@ -29,23 +58,8 @@ func statement(invoice Invoice, plays Play) string {
 
 	for _, perf := range invoice.Performances {
 		play := plays[perf.PlayID]
-		thisAmount := 0.0
-
-		switch play.Type {
-		case "tragedy":
-			thisAmount = 40000
-			if perf.Audience > 30 {
-				thisAmount += 1000 * (float64(perf.Audience - 30))
-			}
-		case "comedy":
-			thisAmount = 30000
-			if perf.Audience > 20 {
-				thisAmount += 10000 + 500*(float64(perf.Audience-20))
-			}
-			thisAmount += 300 * float64(perf.Audience)
-		default:
-			panic(fmt.Sprintf("unknow type: %s", play.Type))
-		}
+	
+		thisAmount := getAmount(perf,play)
 
 		// add volume credits
 		volumeCredits += math.Max(float64(perf.Audience-30), 0)
@@ -55,7 +69,7 @@ func statement(invoice Invoice, plays Play) string {
 		}
 
 		// print line for this order
-		result += fmt.Sprintf("  %s: $%.2f (%d seats)\n", play.Name, thisAmount/100, perf.Audience)
+		result += fmt.Sprintf("  %s: $%.2f (%d seats)\n", playName(play), thisAmount/100, perf.Audience)
 		totalAmount += thisAmount
 	}
 	result += fmt.Sprintf("Amount owed is $%.2f\n", totalAmount/100)
@@ -72,9 +86,9 @@ func main() {
 			{PlayID: "othello", Audience: 40},
 		}}
 	plays := map[string]_Play{
-		"hamlet":  _Play{Name: "Hamlet", Type: "tragedy"},
-		"as-like": _Play{Name: "As You Like It", Type: "comedy"},
-		"othello": _Play{Name: "Othello", Type: "tragedy"},
+		"hamlet": {Name: "Hamlet", Type: "tragedy"},
+		"as-like":{Name: "As You Like It", Type: "comedy"},
+		"othello":{Name: "Othello", Type: "tragedy"},
 	}
 
 	bill := statement(inv, plays)

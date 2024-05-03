@@ -46,3 +46,4 @@ invoices.json
 2. extract funciton getAmount
 3. rename Plays map struct and Play struct 
 4. inline statement and totalAmount in statement 
+5. extract function volumeCreditsFor

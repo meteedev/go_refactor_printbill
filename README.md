@@ -48,3 +48,4 @@ invoices.json
 4. inline statement and totalAmount in statement 
 5. extract function volumeCreditsFor
 6. split loop in statment function  volume , result , amount
+7. extract function  totalAmount and totalVolumeCredits

@@ -44,3 +44,4 @@ invoices.json
 ### refactor step
 1. replace play map string to map struct
 2. extract funciton getAmount
+3. rename Plays map struct and Play struct 

@@ -1,0 +1,61 @@
+name: Go CI
+
+on:
+  push:
+    branches:
+      - main  # Adjust the branch name as needed
+
+env:
+  DEFAULT_GO_VERSION: '1.22.1'  # Default Go version if not specified in matrix
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.22.1']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Display Go version
+        run: go version
+
+      - name: Install order dependencies
+        run: cd order && go mod download
+
+      - name: Install payment dependencies
+        run: cd payment && go mod download
+
+      - name: Run go vet for order
+        run: cd order && go vet ./...
+
+      - name: Run go vet for payment
+        run: cd payment && go vet ./...
+
+
+
+
+  Unit-Test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.22.1']
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go-version }}
+    
+      - name: Run Order Unit test 
+        run: cd order && go test -v ./...
+
+      - name: Run Order Unit test 
+        run: cd payment && go test -v ./...

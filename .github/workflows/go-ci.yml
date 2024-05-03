@@ -27,20 +27,12 @@ jobs:
         run: go version
 
       - name: Install order dependencies
-        run: cd order && go mod download
+        run: go mod download
+        
+      - name: Run go vet
+        run: go vet ./...
 
-      - name: Install payment dependencies
-        run: cd payment && go mod download
-
-      - name: Run go vet for order
-        run: cd order && go vet ./...
-
-      - name: Run go vet for payment
-        run: cd payment && go vet ./...
-
-
-
-
+      
   Unit-Test:
     runs-on: ubuntu-latest
     strategy:
@@ -54,8 +46,5 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
     
-      - name: Run Order Unit test 
-        run: cd order && go test -v ./...
-
-      - name: Run Order Unit test 
-        run: cd payment && go test -v ./...
+      - name: Run Unit test 
+        run: go test -v ./...

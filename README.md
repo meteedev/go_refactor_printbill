@@ -49,3 +49,4 @@ invoices.json
 5. extract function volumeCreditsFor
 6. split loop in statment function  volume , result , amount
 7. extract function  totalAmount and totalVolumeCredits
+8. extract function  renderPlainText

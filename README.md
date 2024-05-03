@@ -45,3 +45,4 @@ invoices.json
 1. replace play map string to map struct
 2. extract funciton getAmount
 3. rename Plays map struct and Play struct 
+4. inline statement and totalAmount in statement 

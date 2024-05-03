@@ -22,7 +22,7 @@ type Invoice struct {
 	Performances []Performance `json:"performances"`
 }
 
-func playFor(play Play) string {
+func playType(play Play) string {
 	return play.Type
 }
 
@@ -30,25 +30,29 @@ func playName(play Play) string {
 	return play.Name
 }
 
-func getAmount(perf Performance, play Play) float64 {
-	thisAmount := 0.0
+func playFor(plays Plays,perf Performance)Play{
+	return plays[perf.PlayID]
+}
 
-	switch playFor(play) {
+func getAmount(perf Performance, play Play) float64 {
+	result := 0.0
+
+	switch playType(play) {
 	case "tragedy":
-		thisAmount = 40000
+		result = 40000
 		if perf.Audience > 30 {
-			thisAmount += 1000 * (float64(perf.Audience - 30))
+			result += 1000 * (float64(perf.Audience - 30))
 		}
 	case "comedy":
-		thisAmount = 30000
+		result = 30000
 		if perf.Audience > 20 {
-			thisAmount += 10000 + 500*(float64(perf.Audience-20))
+			result += 10000 + 500*(float64(perf.Audience-20))
 		}
-		thisAmount += 300 * float64(perf.Audience)
+		result += 300 * float64(perf.Audience)
 	default:
 		panic(fmt.Sprintf("unknow type: %s", play.Type))
 	}
-	return thisAmount
+	return result
 }
 
 func statement(invoice Invoice, plays Plays) string {
@@ -57,20 +61,17 @@ func statement(invoice Invoice, plays Plays) string {
 	result := fmt.Sprintf("Statement for %s\n", invoice.Customer)
 
 	for _, perf := range invoice.Performances {
-		play := plays[perf.PlayID]
-
-		thisAmount := getAmount(perf, play)
 
 		// add volume credits
 		volumeCredits += math.Max(float64(perf.Audience-30), 0)
 		// add extra credit for every ten comedy attendees
-		if "comedy" == play.Type {
+		if "comedy" == playType(playFor(plays,perf)) {
 			volumeCredits += math.Floor(float64(perf.Audience / 5))
 		}
 
 		// print line for this order
-		result += fmt.Sprintf("  %s: $%.2f (%d seats)\n", playName(play), thisAmount/100, perf.Audience)
-		totalAmount += thisAmount
+		result += fmt.Sprintf("  %s: $%.2f (%d seats)\n", playName(playFor(plays,perf)), getAmount(perf, playFor(plays,perf))/100, perf.Audience)
+		totalAmount += getAmount(perf, playFor(plays,perf))
 	}
 	result += fmt.Sprintf("Amount owed is $%.2f\n", totalAmount/100)
 	result += fmt.Sprintf("you earned %.0f credits\n", volumeCredits)

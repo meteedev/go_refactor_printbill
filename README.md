@@ -52,3 +52,4 @@ invoices.json
 8. extract function  renderPlainText
 9. create Rate struct separate detail layer
 10. config Bill struct have slice Rate inside for encapsulate render mode
+11. push dependency create bill to statement for renderPlaintext have only logic render

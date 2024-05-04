@@ -10,7 +10,30 @@ type Plays map[string]Play
 type Play struct {
 	Name string
 	Type string
+	BillCalculator BillCalculate
 }
+
+
+func NewPlay(name, playType string) (Play) {
+	var calculator BillCalculate
+	switch playType {
+	case "tragedy":
+		calculator = Tragedy{}
+	case "comedy":
+		calculator = Comedy{}
+	default:
+		panic(fmt.Sprintf("unknow type: %s", playType))
+	}
+	return Play{Name: name, Type: playType, BillCalculator: calculator}
+}
+
+
+type Tragedy struct{}
+type Comedy struct{}
+type BillCalculate interface {
+	CalculateAmount(perf Performance) float64
+}
+
 
 type Performance struct {
 	PlayID   string `json:"playID"`
@@ -21,6 +44,7 @@ type Invoice struct {
 	Customer     string        `json:"customer"`
 	Performances []Performance `json:"performances"`
 }
+
 
 func playType(play Play) string {
 	return play.Type
@@ -35,25 +59,9 @@ func playFor(plays Plays, perf Performance) Play {
 }
 
 func amountFor(perf Performance, play Play) float64 {
-	result := 0.0
-
-	switch playType(play) {
-	case "tragedy":
-		result = 40000
-		if perf.Audience > 30 {
-			result += 1000 * (float64(perf.Audience - 30))
-		}
-	case "comedy":
-		result = 30000
-		if perf.Audience > 20 {
-			result += 10000 + 500*(float64(perf.Audience-20))
-		}
-		result += 300 * float64(perf.Audience)
-	default:
-		panic(fmt.Sprintf("unknow type: %s", play.Type))
-	}
-	return result
+	return play.BillCalculator.CalculateAmount(perf)
 }
+
 
 func volumeCreditsFor(perf Performance, plays Plays) float64 {
 	result := 0.0
@@ -143,11 +151,32 @@ func main() {
 			{PlayID: "othello", Audience: 40},
 		}}
 	plays := map[string]Play{
-		"hamlet":  {Name: "Hamlet", Type: "tragedy"},
-		"as-like": {Name: "As You Like It", Type: "comedy"},
-		"othello": {Name: "Othello", Type: "tragedy"},
+		"hamlet":  NewPlay("Hamlet","tragedy"),
+		"as-like": NewPlay("As You Like It", "comedy"),
+		"othello": NewPlay("Othello","tragedy"),
 	}
 
 	bill := statement(inv, plays)
 	fmt.Println(bill)
 }
+
+
+
+func (t Tragedy) CalculateAmount(perf Performance) float64{
+	result := 40000.0
+	if perf.Audience > 30 {
+		result += 1000 * (float64(perf.Audience - 30))
+	}
+	return result
+}
+
+
+func (t Comedy) CalculateAmount(perf Performance) float64{
+	result := 30000.0
+	if perf.Audience > 20 {
+		result += 10000 + 500*(float64(perf.Audience-20))
+	}
+	result += 300 * float64(perf.Audience)
+	return result
+}
+

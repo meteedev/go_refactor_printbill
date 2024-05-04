@@ -51,3 +51,4 @@ invoices.json
 7. extract function  totalAmount and totalVolumeCredits
 8. extract function  renderPlainText
 9. create Rate struct separate detail layer
+10. config Bill struct have slice Rate inside for encapsulate render mode

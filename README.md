@@ -54,3 +54,5 @@ invoices.json
 10. config Bill struct have slice Rate inside for encapsulate render mode
 11. push dependency create bill to statement for renderPlaintext have only logic render
 12. remove unused parameter in renderPlaninText
+13. refactor for amount with polymorp 
+14. factory pattern on create Play struct"
